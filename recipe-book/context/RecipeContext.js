@@ -40,21 +40,25 @@ export const RecipeProvider = ({ children }) => {
     },
   ]);
 
-  // פונקציה להוספת מתכון חדש
   const addRecipe = (newRecipe) => {
     setRecipes([...recipes, newRecipe]);
     console.log(recipes);
   };
 
-  // פונקציה לעדכון מתכון קיים
   const updateRecipe = (updatedRecipe) => {
     setRecipes(
       recipes.map((r) => (r.id === updatedRecipe.id ? updatedRecipe : r))
     );
   };
 
+  const deleteRecipe = (recipeId) => {
+    setRecipes(recipes.filter((recipe) => recipe.id !== recipeId));
+  };
+
   return (
-    <RecipeContext.Provider value={{ recipes, addRecipe, updateRecipe }}>
+    <RecipeContext.Provider
+      value={{ recipes, addRecipe, updateRecipe, deleteRecipe }}
+    >
       {children}
     </RecipeContext.Provider>
   );

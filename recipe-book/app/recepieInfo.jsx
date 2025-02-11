@@ -8,17 +8,19 @@ import {
   Keyboard,
   TouchableWithoutFeedback,
   KeyboardAvoidingView,
+  Alert,
 } from "react-native";
 import { Card, Title, Paragraph, Button } from "react-native-paper";
 import { RecipeContext } from "../context/RecipeContext.js";
-import { useFocusEffect, useLocalSearchParams } from "expo-router";
+import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
+import styles from "../styles/recepieInfoStyles.js";
 
 export default function RecepieInfo() {
-  const { recipes, updateRecipe } = useContext(RecipeContext);
+  const { recipes, updateRecipe, deleteRecipe } = useContext(RecipeContext);
   const { recipeId } = useLocalSearchParams();
+  const router = useRouter();
 
   const selectedRecipe = recipes.find((r) => r.id === recipeId);
-
   const [editedRecipe, setEditedRecipe] = useState(selectedRecipe);
   const [isEditing, setIsEditing] = useState(false);
 
@@ -37,6 +39,24 @@ export default function RecepieInfo() {
   const handleSave = () => {
     updateRecipe(editedRecipe);
     setIsEditing(false);
+  };
+
+  const handleDelete = () => {
+    Alert.alert(
+      "Delete Recipe",
+      "Are you sure you want to delete this recipe? This action cannot be undone.",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: () => {
+            deleteRecipe(recipeId);
+            router.replace("/"); // Redirect to home page after deleting
+          },
+        },
+      ]
+    );
   };
 
   if (!editedRecipe) {
@@ -113,14 +133,29 @@ export default function RecepieInfo() {
 
                 <Card.Actions style={styles.actions}>
                   {isEditing ? (
-                    <Button mode="contained" onPress={handleSave}>
+                    <Button
+                      mode="contained"
+                      buttonColor="#4CAF50"
+                      onPress={handleSave}
+                    >
                       Save
                     </Button>
                   ) : (
-                    <Button mode="contained" onPress={() => setIsEditing(true)}>
+                    <Button
+                      mode="contained"
+                      buttonColor="#FF9800"
+                      onPress={() => setIsEditing(true)}
+                    >
                       Edit
                     </Button>
                   )}
+                  <Button
+                    mode="contained"
+                    buttonColor="#D32F2F"
+                    onPress={handleDelete}
+                  >
+                    Delete
+                  </Button>
                 </Card.Actions>
               </Card>
             </View>
@@ -130,83 +165,3 @@ export default function RecepieInfo() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: "#FFF5E1",
-  },
-  scrollContainer: {
-    flexGrow: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 20,
-  },
-  content: {
-    width: "100%",
-  },
-  card: {
-    backgroundColor: "#fff",
-    borderRadius: 12,
-    elevation: 5,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    paddingVertical: 20,
-  },
-  titleContainer: {
-    alignItems: "center",
-    marginBottom: 10,
-  },
-  title: {
-    fontSize: 26,
-    fontWeight: "bold",
-    color: "#333",
-    textAlign: "center",
-  },
-  subtitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: "#F1C27D",
-    marginTop: 15,
-  },
-  contentText: {
-    fontSize: 16,
-    color: "#555",
-    lineHeight: 22,
-    textAlign: "center",
-  },
-  input: {
-    fontSize: 16,
-    borderBottomWidth: 1,
-    borderColor: "#F1C27D",
-    padding: 8,
-    marginVertical: 10,
-    color: "#333",
-  },
-  inputTitle: {
-    fontSize: 24,
-    fontWeight: "bold",
-    borderBottomWidth: 1,
-    borderColor: "#F1C27D",
-    padding: 8,
-    color: "#333",
-    textAlign: "center",
-    width: "100%",
-  },
-  textArea: {
-    height: 80,
-    textAlignVertical: "top",
-  },
-  actions: {
-    padding: 15,
-    justifyContent: "center",
-  },
-  errorText: {
-    fontSize: 20,
-    color: "red",
-    textAlign: "center",
-    marginTop: 50,
-  },
-});
